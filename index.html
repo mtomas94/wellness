@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WELLNESS TEST</title>
+    <title>WELLNESS SYSTEM - PROFESSIONAL</title>
 
     <script>
         document.oncontextmenu = function() { return false; };
@@ -18,37 +18,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #f0f2f5; --card: #ffffff; --primary: #1e3a8a; --secondary: #3b82f6;
-            --accent: #f59e0b; --danger: #ef4444; --success: #10b981; --text: #1f2937;
-        }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); -webkit-tap-highlight-color: transparent; user-select: none; }
+        :root { --bg: #f0f2f5; --card: #ffffff; --primary: #1e3a8a; --secondary: #3b82f6; --accent: #f59e0b; --danger: #ef4444; --success: #10b981; --text: #1f2937; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); user-select: none; }
         .nav { background: var(--primary); color: white; padding: 1.5rem; text-align: center; font-weight: 700; font-size: 1.5rem; }
         .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
-        .card { background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid var(--secondary); }
-        input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; border: 1px solid #d1d5db; font-size: 16px; }
+        .card { background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid var(--secondary); }
+        input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; border: 1px solid #d1d5db; font-size: 16px; box-sizing: border-box; }
         button { background: var(--secondary); color: white; border: none; cursor: pointer; font-weight: 600; }
-        .btn-danger { background: var(--danger) !important; }
-        .btn-success { background: var(--success) !important; }
         .hidden { display: none; }
         .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border-radius: 8px; margin-bottom: 5px; border: 1px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        .badge-reset { background: var(--accent); color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; border: none; }
+        .high-score { color: var(--danger); font-weight: bold; }
+        .slider-box { background: #f9fafb; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #eee; }
     </style>
 </head>
 <body>
 
-<div class="nav">📊 WELLNESS TEST</div>
+<div class="nav">📊 TEAM WELLNESS SYSTEM</div>
 
 <div class="container">
     <div id="login-section" class="card">
-        <h2>Identity Verification</h2>
-        <select id="player-select"><option value="">-- Loading Players... --</option></select>
-        <button onclick="loginPlayer()">Identify as Player</button>
+        <h2>Identification</h2>
+        <select id="player-select"><option value="">Connecting to Database...</option></select>
+        <button onclick="loginPlayer()" style="background: var(--success)">Identify as Player</button>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #ccc;">
             <input type="password" id="admin-pass" placeholder="Staff Password">
-            <button style="background: var(--primary)" onclick="loginAdmin()">Open Admin Dashboard</button>
+            <button style="background: var(--primary)" onclick="loginAdmin()">Coach Dashboard</button>
         </div>
     </div>
 
@@ -56,51 +52,53 @@
         <button onclick="logout()" style="width:auto; float:right; background:#6b7280; padding:8px 15px;">Logout</button>
         <h2 id="welcome-msg">Welcome</h2>
         <div id="test-form">
-            <div class="slider-box"><span>Sleep: </span><span id="v1">5</span><input type="range" id="q-sleep" min="0" max="10" value="5" oninput="updateVal('v1', this.value)"></div>
-            <div class="slider-box"><span>Stress: </span><span id="v2">5</span><input type="range" id="q-stress" min="0" max="10" value="5" oninput="updateVal('v2', this.value)"></div>
-            <div class="slider-box"><span>Fatigue: </span><span id="v3">5</span><input type="range" id="q-fatigue" min="0" max="10" value="5" oninput="updateVal('v3', this.value)"></div>
-            <div class="slider-box"><span>Soreness: </span><span id="v4">5</span><input type="range" id="q-soreness" min="0" max="10" value="5" oninput="updateVal('v4', this.value)"></div>
-            <button class="btn-success" onclick="submitTest()" style="height:60px; margin-top:20px;">SEND TEST</button>
+            <div class="slider-box">Sleep Quality: <b id="v1">5</b><input type="range" id="q-sleep" min="0" max="10" value="5" oninput="updateVal('v1', this.value)"></div>
+            <div class="slider-box">Stress Level: <b id="v2">5</b><input type="range" id="q-stress" min="0" max="10" value="5" oninput="updateVal('v2', this.value)"></div>
+            <div class="slider-box">Muscle Soreness: <b id="v3">5</b><input type="range" id="q-soreness" min="0" max="10" value="5" oninput="updateVal('v3', this.value)"></div>
+            <div class="slider-box">Fatigue: <b id="v4">5</b><input type="range" id="q-fatigue" min="0" max="10" value="5" oninput="updateVal('v4', this.value)"></div>
+            <button onclick="submitTest()" style="background: var(--success); height: 60px;">SUBMIT DAILY TEST</button>
         </div>
-        <div id="already-done" class="hidden" style="text-align:center;">
-            <p>✅ Test completed for today.</p>
-            <button id="btn-request-ui" onclick="requestReset()" style="background:var(--accent); width:auto;">Request Reset</button>
+        <div id="already-done" class="hidden" style="text-align: center;">
+            <h3>✅ Test submitted for today.</h3>
+            <button onclick="requestReset()" id="btn-request-ui" style="background: var(--accent); width: auto;">Request Reset</button>
         </div>
     </div>
 
     <div id="admin-section" class="hidden">
         <div class="card">
-            <button onclick="logout()" style="width:auto; float:right; background:#6b7280; padding:8px 15px;">Logout Admin</button>
-            <h2>Coach Dashboard</h2>
+            <button onclick="logout()" style="width:auto; float:right; background:#6b7280; padding:8px 15px;">Logout</button>
+            <h2>Team Control Panel</h2>
             <div id="attendance-list"></div>
-            <h1 id="team-avg-display" style="color:var(--secondary); text-align:center;">0%</h1>
-            <canvas id="teamChart" height="150"></canvas>
-            <button class="btn-danger" onclick="resetAllTests()">RESET ALL DATA</button>
+            <h1 id="team-avg-display" style="text-align: center; color: var(--secondary); font-size: 3rem;">0%</h1>
+            <canvas id="teamChart" height="120"></canvas>
+            <button onclick="resetAllTests()" style="background: var(--danger)">WIPE ALL DAILY DATA</button>
         </div>
+
         <div class="card">
-            <h3>Manage Players</h3>
-            <div style="display:flex; gap:10px;">
+            <h3>Player Management</h3>
+            <div style="display: flex; gap: 10px;">
                 <input type="text" id="new-player-name" placeholder="New player name...">
-                <button onclick="addPlayer()" style="width:100px;">Add</button>
+                <button onclick="addPlayer()" style="width: 100px;">Add</button>
             </div>
-            <div id="player-manage-list" style="margin-top:15px;"></div>
+            <div id="player-manage-list" style="margin-top: 15px;"></div>
         </div>
+
         <div class="card">
-            <h3>Summary & Export</h3>
-            <div style="overflow-x:auto;">
+            <h3>Live Summary (>6 in Red)</h3>
+            <div style="overflow-x: auto;">
                 <table>
-                    <thead><tr><th>Name</th><th>Sleep</th><th>Stress</th><th>Fatigue</th><th>Soreness</th><th>Avg</th></tr></thead>
+                    <thead><tr><th>Player</th><th>Sleep</th><th>Stress</th><th>Fatigue</th><th>Soreness</th><th>Avg</th></tr></thead>
                     <tbody id="summary-body"></tbody>
                 </table>
             </div>
-            <button class="btn-success" onclick="exportToExcel()" style="margin-top:15px;">Download Excel</button>
+            <button onclick="exportToExcel()" style="background: var(--success); margin-top: 15px;">📥 DOWNLOAD EXCEL (Ordered)</button>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDLO8H1CuefWUd1r9k4LcaYYLJ30z6RcAQ",
@@ -114,32 +112,32 @@
 
     window.updateVal = (id, val) => document.getElementById(id).innerText = val;
 
-    // CARREGAR JUGADORS
     onValue(ref(db, 'players'), (snap) => {
         const data = snap.val();
-        window.players = data ? Object.values(data) : [];
         const select = document.getElementById('player-select');
         const manageList = document.getElementById('player-manage-list');
+        window.players = data ? Object.values(data).filter(p => typeof p === 'string' && p.trim() !== "") : [];
         
-        select.innerHTML = '<option value="">-- Choose Your Name --</option>' + 
-            window.players.map(p => `<option value="${p}">${p}</option>`).join('');
-            
-        manageList.innerHTML = window.players.map(p => `
-            <div class="manage-item">
-                <span>${p}</span>
-                <button onclick="removePlayer('${p}')" style="background:red; width:auto; padding:5px 10px;">Delete</button>
-            </div>
-        `).join('');
+        select.innerHTML = `<option value="">-- Select Your Name --</option>`;
+        window.players.forEach(name => {
+            let opt = document.createElement('option'); opt.value = name; opt.textContent = name;
+            select.appendChild(opt);
+        });
+
+        if (manageList) {
+            manageList.innerHTML = window.players.map(p => `
+                <div class="manage-item"><span>${p}</span>
+                <button onclick="removePlayer('${p}')" style="background:red; width:auto; padding:5px 10px;">Delete</button></div>
+            `).join('');
+        }
     });
 
-    // CARREGAR REGISTRES
     onValue(ref(db, 'records'), (snap) => {
         window.records = snap.val() ? Object.values(snap.val()) : [];
         if (window.currentPlayer) checkIfDone();
         renderAdminData();
     });
 
-    // CARREGAR RESETS
     onValue(ref(db, 'resets'), (snap) => {
         window.resetRequests = snap.val() ? Object.keys(snap.val()) : [];
         renderAdminData();
@@ -147,45 +145,37 @@
 
     window.loginPlayer = () => {
         const name = document.getElementById('player-select').value;
-        if (!name) return;
+        if (!name) return alert("Select your name!");
         window.currentPlayer = name;
-        localStorage.setItem('hb_session', name);
+        localStorage.setItem('session_user', name);
         showPlayerSection();
     };
 
     function showPlayerSection() {
         document.getElementById('login-section').classList.add('hidden');
         document.getElementById('player-section').classList.remove('hidden');
-        document.getElementById('welcome-msg').innerText = "Player: " + window.currentPlayer;
+        document.getElementById('welcome-msg').innerText = "Hello, " + window.currentPlayer;
         checkIfDone();
     }
 
     function checkIfDone() {
         const today = new Date().toISOString().split('T')[0];
-        const done = window.records.find(r => r.name === window.currentPlayer && r.date === today);
-        document.getElementById('test-form').classList.toggle('hidden', !!done);
-        document.getElementById('already-done').classList.toggle('hidden', !done);
-        
-        const isPending = window.resetRequests && window.resetRequests.includes(window.currentPlayer);
-        const btn = document.getElementById('btn-request-ui');
-        if (btn) {
-            btn.innerText = isPending ? "Wait for Coach..." : "Request Reset";
-            btn.disabled = isPending;
-        }
+        const r = window.records.find(rec => rec.name === window.currentPlayer && rec.date === today);
+        document.getElementById('test-form').classList.toggle('hidden', !!r);
+        document.getElementById('already-done').classList.toggle('hidden', !r);
     }
 
     window.submitTest = () => {
         const today = new Date().toISOString().split('T')[0];
         const data = {
-            name: window.currentPlayer,
-            date: today,
+            name: window.currentPlayer, date: today,
             sleep: parseInt(document.getElementById('q-sleep').value),
             stress: parseInt(document.getElementById('q-stress').value),
-            fatigue: parseInt(document.getElementById('q-fatigue').value),
-            soreness: parseInt(document.getElementById('q-soreness').value)
+            soreness: parseInt(document.getElementById('q-soreness').value),
+            fatigue: parseInt(document.getElementById('q-fatigue').value)
         };
-        data.avg = (data.sleep + data.stress + data.fatigue + data.soreness) / 4;
-        set(ref(db, 'records/' + window.currentPlayer + "_" + today), data);
+        data.avg = (data.sleep + data.stress + data.soreness + data.fatigue) / 4;
+        set(ref(db, 'records/' + window.currentPlayer + "_" + today), data).then(() => alert("Submitted!"));
     };
 
     window.loginAdmin = () => {
@@ -201,84 +191,74 @@
         document.getElementById('new-player-name').value = "";
     };
 
-    window.removePlayer = (name) => {
-        if (confirm("Delete " + name + "?")) remove(ref(db, 'players/' + name));
-    };
-
-    window.requestReset = () => set(ref(db, 'resets/' + window.currentPlayer), true);
-
+    window.removePlayer = (name) => { if (confirm("Delete " + name + "?")) remove(ref(db, 'players/' + name)); };
     window.approveReset = (name) => {
         const today = new Date().toISOString().split('T')[0];
         remove(ref(db, 'records/' + name + "_" + today));
         remove(ref(db, 'resets/' + name));
     };
-
-    window.resetAllTests = () => {
-        if (confirm("CLEAR ALL DATA?")) {
-            remove(ref(db, 'records'));
-            remove(ref(db, 'resets'));
-        }
-    };
+    window.requestReset = () => set(ref(db, 'resets/' + window.currentPlayer), true);
+    window.resetAllTests = () => { if(confirm("Are you sure?")) { remove(ref(db, 'records')); remove(ref(db, 'resets')); } };
 
     window.renderAdminData = () => {
         const today = new Date().toISOString().split('T')[0];
         const body = document.getElementById('summary-body');
         const attendance = document.getElementById('attendance-list');
         if (!body) return;
-        
         body.innerHTML = ""; attendance.innerHTML = "";
-        let totalAvg = 0, count = 0;
+        let total = 0, count = 0;
 
         window.players.forEach(p => {
             const r = window.records.find(rec => rec.name === p && rec.date === today);
-            const needsReset = window.resetRequests.includes(p);
-            
-            attendance.innerHTML += `
-                <div style="margin:5px 0; display:flex; justify-content:space-between;">
-                    <span>${r ? '✅' : '❌'} ${p}</span>
-                    ${needsReset ? `<button class="badge-reset" onclick="approveReset('${p}')">Reset Player</button>` : ''}
-                </div>`;
-
+            const req = window.resetRequests.includes(p);
+            attendance.innerHTML += `<div class="manage-item"><span>${r ? '✅' : '❌'} ${p}</span>
+                ${req ? `<button onclick="approveReset('${p}')" style="background:orange; width:auto; padding:5px 10px;">Reset</button>` : ''}</div>`;
             if (r) {
-                totalAvg += r.avg; count++;
-                body.innerHTML += `<tr>
-                    <td>${p}</td><td>${r.sleep}</td><td>${r.stress}</td>
-                    <td>${r.fatigue}</td><td>${r.soreness}</td><td>${r.avg.toFixed(1)}</td>
-                </tr>`;
+                total += r.avg; count++;
+                const fmt = (val) => val > 6 ? `<span class="high-score">${val}</span>` : val;
+                body.innerHTML += `<tr><td>${p}</td><td>${fmt(r.sleep)}</td><td>${fmt(r.stress)}</td><td>${fmt(r.fatigue)}</td><td>${fmt(r.soreness)}</td><td>${fmt(r.avg.toFixed(1))}</td></tr>`;
             }
         });
-        
-        document.getElementById('team-avg-display').innerText = count ? Math.round((totalAvg/count)*10) + "%" : "0%";
+        window.currentTeamAvg = count ? (total/count).toFixed(1) : 0;
+        document.getElementById('team-avg-display').innerText = count ? Math.round((total/count)*10) + "%" : "0%";
         updateChart(today);
     };
 
     function updateChart(today) {
-        const dailyData = window.records.filter(r => r.date === today);
+        const d = window.records.filter(r => r.date === today);
         const ctx = document.getElementById('teamChart').getContext('2d');
         if (window.myChart) window.myChart.destroy();
         window.myChart = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: dailyData.map(r => r.name),
-                datasets: [{ label: 'Wellness Score', data: dailyData.map(r => r.avg), backgroundColor: '#3b82f6' }]
-            },
+            data: { labels: d.map(r => r.name), datasets: [{ label: 'Score', data: d.map(r => r.avg), backgroundColor: '#3b82f6' }] },
             options: { scales: { y: { beginAtZero: true, max: 10 } } }
         });
     }
 
     window.exportToExcel = () => {
         const today = new Date().toISOString().split('T')[0];
-        const dataForExcel = window.records.filter(r => r.date === today);
-        if (dataForExcel.length === 0) return alert("No data to export");
-        const ws = XLSX.utils.json_to_sheet(dataForExcel);
+        const rawData = window.records.filter(r => r.date === today);
+        
+        // REORDENACIÓ I CÀLCUL PER EXCEL
+        const formattedData = rawData.map(r => ({
+            "User Name": r.name,
+            "Date": r.date,
+            "Sleep": r.sleep,
+            "Stress": r.stress,
+            "Soreness": r.soreness,
+            "Fatigue": r.fatigue,
+            "Team Average": window.currentTeamAvg,
+            "Player Average": r.avg.toFixed(1)
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(formattedData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Wellness");
-        XLSX.writeFile(wb, "Wellness_" + today + ".xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "Daily_Wellness");
+        XLSX.writeFile(wb, `Wellness_Report_${today}.xlsx`);
     };
 
-    window.logout = () => { localStorage.removeItem('hb_session'); location.reload(); };
-
-    const saved = localStorage.getItem('hb_session');
+    window.logout = () => { localStorage.removeItem('session_user'); location.reload(); };
+    const saved = localStorage.getItem('session_user');
     if (saved) { window.currentPlayer = saved; showPlayerSection(); }
 </script>
 </body>
