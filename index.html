@@ -70,11 +70,12 @@
             <div class="slider-box"><div class="slider-header"><span>Fatigue Level</span><span id="v4">5</span></div><input type="range" id="q-fatigue" min="0" max="10" value="5" oninput="updateVal('v4', this.value)"></div>
             <button onclick="submitTest()" style="background: var(--success); height: 60px;">SEND TODAY'S TEST</button>
         </div>
-        <div id="already-done" class="hidden" style="text-align: center; padding: 20px 0;">
-            <div style="font-size: 3rem;">✅</div>
-            <h3>Test Completed</h3>
-            <p>You cannot repeat the test without Coach permission.</p>
-            <button onclick="requestReset()" id="btn-request-ui" style="background: var(--accent); width: auto;">Request Reset Access</button>
+        <div id="already-done" class="hidden">
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="font-size: 3rem;">✅</div>
+                <h3>Test Completed</h3>
+                <button onclick="requestReset()" id="btn-request-ui" style="background: var(--accent); width: auto;">Request Reset Access</button>
+            </div>
         </div>
     </div>
 
@@ -86,18 +87,18 @@
             <div id="attendance-list" style="margin-top: 20px;"></div>
             <div id="team-avg-display" style="font-size: 2.5rem; font-weight: bold; color: var(--secondary); margin: 15px 0;">0%</div>
             <canvas id="teamChart" height="120"></canvas>
-            <button onclick="resetAllTests()" class="btn-reset-all">🔄 Reset All Tests (For Tomorrow)</button>
+            <button onclick="resetAllTests()" class="btn-reset-all">🔄 Reset All Tests</button>
         </div>
-        <div class="card" style="border-top-color: var(--accent);">
+        <div class="card">
             <h3>Player Management</h3>
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <input type="text" id="new-player-name" placeholder="Type name..." style="margin: 0;">
-                <button onclick="addPlayer()" class="btn-add">Add (+)</button>
+                <input type="text" id="new-player-name" placeholder="Name..." style="margin: 0;">
+                <button onclick="addPlayer()" class="btn-add">Add</button>
             </div>
             <div id="player-manage-list"></div>
         </div>
         <div class="card">
-            <h3>Export Today's Data</h3>
+            <h3>Export Data</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead><tr><th>Player</th><th>Sleep</th><th>Stress</th><th>Fatigue</th><th>DOMS</th><th>Action</th></tr></thead>
@@ -111,7 +112,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, remove, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, onValue, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDLO8H1CuefWUd1r9k4LcaYYLJ30z6RcAQ",
@@ -129,55 +130,35 @@
     window.updateVal = (id, val) => document.getElementById(id).innerText = val;
 
     onValue(ref(db, 'players'), (snap) => {
-        window.players = snap.val() ? Object.values(snap.val()) : [];
+        const val = snap.val();
+        window.players = val ? Object.values(val) : [];
         const select = document.getElementById('player-select');
         const manageList = document.getElementById('player-manage-list');
-        select.innerHTML = '<option value="">-- Choose Your Name --</option>' + 
-            window.players.map(p => `<option value="${p}">${p}</option>`).join('');
-        if (manageList) {
-            manageList.innerHTML = window.players.map(p => `
-                <div class="manage-item">
-                    <span>${p}</span>
-                    <button class="btn-remove" onclick="removePlayer('${p}')">Remove (X)</button>
-                </div>
-            `).join('');
-        }
+        if (select) select.innerHTML = '<option value="">-- Choose Your Name --</option>' + window.players.map(p => `<option value="${p}">${p}</option>`).join('');
+        if (manageList) manageList.innerHTML = window.players.map(p => `<div class="manage-item"><span>${p}</span><button class="btn-remove" onclick="removePlayer('${p}')">Remove</button></div>`).join('');
     });
 
-    window.addPlayer = () => {
-        const input = document.getElementById('new-player-name');
-        const name = input.value.trim();
-        if (!name) return alert("Please enter a name");
-        if (window.players.includes(name)) return alert("This player already exists");
-        set(ref(db, 'players/' + name), name);
-        input.value = "";
-    };
-
-    window.removePlayer = (name) => {
-        if (confirm(`Remove ${name} from the list?`)) {
-            remove(ref(db, 'players/' + name));
-        }
-    };
-
     onValue(ref(db, 'records'), (snap) => {
-        window.records = snap.val() ? Object.values(snap.val()) : [];
+        const val = snap.val();
+        window.records = val ? Object.values(val) : [];
         if (window.currentPlayer) checkIfDone();
         renderAdminData();
     });
 
     onValue(ref(db, 'resets'), (snap) => {
-        window.resetRequests = snap.val() ? Object.keys(snap.val()) : [];
+        const val = snap.val();
+        window.resetRequests = val ? Object.keys(val) : [];
         renderAdminData();
     });
 
     window.loginPlayer = async () => {
         const name = document.getElementById('player-select').value;
         if (!name) return;
+        window.currentPlayer = name;
+        localStorage.setItem('hb_current_session', name);
         const sessionRef = ref(db, 'active_sessions/' + name);
         await set(sessionRef, { active: true });
         onDisconnect(sessionRef).set({ active: false });
-        window.currentPlayer = name;
-        localStorage.setItem('hb_current_session', name);
         showPlayerSection();
     };
 
@@ -191,22 +172,18 @@
 
     function checkIfDone() {
         const today = new Date().toISOString().split('T')[0];
-        const done = window.records.find(r => r.name === window.currentPlayer && r.date === today);
-        document.getElementById('test-form').style.display = done ? 'none' : 'block';
-        document.getElementById('already-done').style.display = done ? 'block' : 'none';
+        const r = window.records.find(rec => rec.name === window.currentPlayer && rec.date === today);
+        document.getElementById('test-form').style.display = r ? 'none' : 'block';
+        document.getElementById('already-done').classList.toggle('hidden', !r);
         const isPending = window.resetRequests && window.resetRequests.includes(window.currentPlayer);
         const btn = document.getElementById('btn-request-ui');
-        if (btn) {
-            btn.innerText = isPending ? "Request Sent..." : "Request Reset Access";
-            btn.disabled = isPending;
-        }
+        if (btn) { btn.innerText = isPending ? "Request Sent..." : "Request Reset Access"; btn.disabled = isPending; }
     }
 
     window.submitTest = () => {
         const today = new Date().toISOString().split('T')[0];
         const data = {
-            name: window.currentPlayer,
-            date: today,
+            name: window.currentPlayer, date: today,
             sleep: parseInt(document.getElementById('q-sleep').value),
             stress: parseInt(document.getElementById('q-stress').value),
             soreness: parseInt(document.getElementById('q-soreness').value),
@@ -216,35 +193,28 @@
         set(ref(db, 'records/' + window.currentPlayer + "_" + today), data);
     };
 
-    window.requestReset = () => set(ref(db, 'resets/' + window.currentPlayer), true);
-
     window.loginAdmin = () => {
         if (document.getElementById('admin-pass').value === "1234") {
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('admin-section').classList.remove('hidden');
-        } else {
-            alert("Incorrect password");
         }
     };
 
-    window.sendWhatsAppReminder = () => {
-        const msg = encodeURIComponent("Please, remember to finish the wellness test as soon as possible, thank you!");
-        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    window.addPlayer = () => {
+        const name = document.getElementById('new-player-name').value.trim();
+        if (name) set(ref(db, 'players/' + name), name);
+        document.getElementById('new-player-name').value = "";
     };
 
-    window.resetAllTests = async () => {
-        if(confirm("This will clear ALL current records and reset the team. Continue?")) {
-            await remove(ref(db, 'records'));
-            await remove(ref(db, 'resets'));
-            alert("Team reset complete.");
-        }
-    };
-
+    window.removePlayer = (name) => { if (confirm(`Remove ${name}?`)) remove(ref(db, 'players/' + name)); };
+    window.requestReset = () => set(ref(db, 'resets/' + window.currentPlayer), true);
     window.approveReset = (name) => {
         const today = new Date().toISOString().split('T')[0];
         remove(ref(db, 'records/' + name + "_" + today));
         remove(ref(db, 'resets/' + name));
     };
+
+    window.resetAllTests = () => { if(confirm("Reset ALL?")) { remove(ref(db, 'records')); remove(ref(db, 'resets')); } };
 
     window.renderAdminData = () => {
         const today = new Date().toISOString().split('T')[0];
@@ -255,19 +225,11 @@
         let teamSum = 0, count = 0;
         window.players.forEach(p => {
             const r = window.records.find(rec => rec.name === p && rec.date === today);
-            const req = window.resetRequests && window.resetRequests.includes(p);
-            attendance.innerHTML += `<div style="margin:8px 0; display:flex; justify-content:space-between; align-items:center;">
-                <span>${r ? '✅' : '❌'} ${p}</span>
-                ${req ? `<button class="badge-reset" onclick="approveReset('${p}')">Approve Reset</button>` : ''}
-            </div>`;
+            const req = window.resetRequests.includes(p);
+            attendance.innerHTML += `<div style="margin:8px 0; display:flex; justify-content:space-between;"><span>${r ? '✅' : '❌'} ${p}</span>${req ? `<button class="badge-reset" onclick="approveReset('${p}')">Approve</button>` : ''}</div>`;
             if(r) {
                 teamSum += r.avg; count++;
-                const ck = (v) => v > 6 ? 'class="score-alert"' : '';
-                body.innerHTML += `<tr>
-                    <td>${p}</td><td ${ck(r.sleep)}>${r.sleep}</td><td ${ck(r.stress)}>${r.stress}</td>
-                    <td ${ck(r.fatigue)}>${r.fatigue}</td><td ${ck(r.soreness)}>${r.soreness}</td>
-                    <td>${req ? 'REQ' : 'OK'}</td>
-                </tr>`;
+                body.innerHTML += `<tr><td>${p}</td><td>${r.sleep}</td><td>${r.stress}</td><td>${r.fatigue}</td><td>${r.soreness}</td><td>${req ? 'REQ' : 'OK'}</td></tr>`;
             }
         });
         document.getElementById('team-avg-display').innerText = count ? Math.round((teamSum/count)*10) + "%" : "0%";
@@ -276,15 +238,8 @@
 
     window.exportToExcel = () => {
         const today = new Date().toISOString().split('T')[0];
-        const testsToday = window.records.filter(r => r.date === today);
-        if (!testsToday.length) return alert("No data.");
-        const teamAvg = (testsToday.reduce((a, b) => a + b.avg, 0) / testsToday.length).toFixed(2);
-        const data = testsToday.map(r => ({
-            "Name": r.name, "Date": r.date, "Sleep": r.sleep, "Stress": r.stress,
-            "Fatigue": r.fatigue, "Soreness": r.soreness, "Player Average": r.avg.toFixed(2),
-            "Team Average": teamAvg
-        }));
-        const ws = XLSX.utils.json_to_sheet(data);
+        const tests = window.records.filter(r => r.date === today);
+        const ws = XLSX.utils.json_to_sheet(tests);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Wellness");
         XLSX.writeFile(wb, `Wellness_${today}.xlsx`);
@@ -301,19 +256,11 @@
         });
     }
 
-    window.logout = async () => {
-        if (window.currentPlayer) {
-            await set(ref(db, 'active_sessions/' + window.currentPlayer), { active: false });
-            localStorage.removeItem('hb_current_session');
-        }
-        location.reload();
-    };
+    window.logout = () => { localStorage.removeItem('hb_current_session'); location.reload(); };
+    window.sendWhatsAppReminder = () => { window.open(`https://wa.me/?text=${encodeURIComponent("Test wellness pendent!")}`, '_blank'); };
 
-    const savedSession = localStorage.getItem('hb_current_session');
-    if (savedSession) {
-        window.currentPlayer = savedSession;
-        showPlayerSection();
-    }
+    const saved = localStorage.getItem('hb_current_session');
+    if (saved) { window.currentPlayer = saved; showPlayerSection(); }
 </script>
 </body>
 </html>
