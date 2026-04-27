@@ -3,27 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WELLNESS TEST - PROTECTED</title>
+    <title>WELLNESS TEST</title>
 
     <script>
-        // 1. Bloquear clic derecho (evita inspeccionar)
         document.oncontextmenu = function() { return false; };
-
-        // 2. Bloquear teclas de desarrollador y comandos de copia
         document.onkeydown = function(e) {
-            if (
-                e.keyCode == 123 || // F12
-                (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || // Ctrl+Shift+I/J
-                (e.ctrlKey && e.keyCode == 85) || // Ctrl+U (Ver código fuente)
-                (e.ctrlKey && e.keyCode == 83)    // Ctrl+S (Guardar página)
-            ) {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
                 return false;
             }
         };
-
-        // 3. Ofuscar un poco el acceso
-        console.log("%c¡ALTO!", "color: red; font-size: 30px; font-weight: bold;");
-        console.log("El acceso no autorizado a este sistema está monitorizado.");
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -34,83 +22,298 @@
             --bg: #f0f2f5; --card: #ffffff; --primary: #1e3a8a; --secondary: #3b82f6;
             --accent: #f59e0b; --danger: #ef4444; --success: #10b981; --text: #1f2937;
         }
-        body { 
-            font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); 
-            -webkit-tap-highlight-color: transparent; 
-            user-select: none; /* Evita que copien texto */
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); -webkit-tap-highlight-color: transparent; user-select: none; }
         .nav { background: var(--primary); color: white; padding: 1.5rem; text-align: center; font-weight: 700; font-size: 1.5rem; }
         .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
         .card { background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid var(--secondary); }
-        input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; border: 1px solid #d1d5db; font-size: 16px; -webkit-appearance: none; }
-        button { background: var(--secondary); color: white; border: none; cursor: pointer; font-weight: 600; }
+        input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; border: 1px solid #d1d5db; font-size: 16px; -webkit-appearance: none; appearance: none; }
+        button { background: var(--secondary); color: white; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-whatsapp { background: #25D366 !important; }
+        .btn-reset-all { background: var(--danger) !important; margin-top: 20px; }
+        .btn-logout { background: #6b7280; width: auto; padding: 8px 20px; float: right; }
+        .btn-remove { background: var(--danger); width: auto; padding: 5px 10px; margin: 0; font-size: 12px; }
+        .btn-add { background: var(--success); width: auto; padding: 14px 25px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .score-alert { color: var(--danger) !important; font-weight: 800 !important; }
+        .slider-box { background: #f9fafb; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .slider-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600; }
+        input[type=range] { accent-color: var(--secondary); cursor: pointer; height: 25px; }
         .hidden { display: none; }
-        /* Estilos de tabla y otros se mantienen... */
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        .badge-reset { background: var(--accent); color: white; border: none; cursor: pointer; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; width: auto; }
+        .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border-radius: 8px; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-<div class="nav">📊 SISTEMA PROTEGIDO</div>
+<div class="nav">📊 WELLNESS TEST</div>
 
 <div class="container">
     <div id="login-section" class="card">
-        <h2>Identificación de Usuario</h2>
-        <select id="player-select"><option value="">-- Selecciona tu nombre --</option></select>
-        <button onclick="loginPlayer()">Entrar como Jugador</button>
-        
+        <h2 style="margin-top:0">Identity Verification</h2>
+        <select id="player-select"><option value="">-- Choose Your Name --</option></select>
+        <button onclick="loginPlayer()">Identify as Player</button>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #ccc;">
-            <input type="password" id="admin-pass" placeholder="Contraseña de Administrador">
-            <button style="background: var(--primary)" onclick="loginAdmin()">Panel de Control (Coach)</button>
+            <input type="password" id="admin-pass" placeholder="Staff Password">
+            <button style="background: var(--primary)" onclick="loginAdmin()">Open Admin Dashboard</button>
         </div>
     </div>
 
     <div id="player-section" class="card hidden">
-        <h2 id="welcome-msg">Bienvenido</h2>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+        <h2 id="welcome-msg">Welcome</h2>
+        <p>Session: <strong id="current-date"></strong></p>
         <div id="test-form">
-            <button onclick="submitTest()" style="background: var(--success); height: 60px;">ENVIAR TEST DE HOY</button>
+            <div class="slider-box"><div class="slider-header"><span>Sleep Quality</span><span id="v1">5</span></div><input type="range" id="q-sleep" min="0" max="10" value="5" oninput="updateVal('v1', this.value)"></div>
+            <div class="slider-box"><div class="slider-header"><span>Stress Level</span><span id="v2">5</span></div><input type="range" id="q-stress" min="0" max="10" value="5" oninput="updateVal('v2', this.value)"></div>
+            <div class="slider-box"><div class="slider-header"><span>Muscle Soreness (DOMS)</span><span id="v3">5</span></div><input type="range" id="q-soreness" min="0" max="10" value="5" oninput="updateVal('v3', this.value)"></div>
+            <div class="slider-box"><div class="slider-header"><span>Fatigue Level</span><span id="v4">5</span></div><input type="range" id="q-fatigue" min="0" max="10" value="5" oninput="updateVal('v4', this.value)"></div>
+            <button onclick="submitTest()" style="background: var(--success); height: 60px;">SEND TODAY'S TEST</button>
         </div>
-        <div id="already-done" class="hidden">
-            <p>✅ Test enviado correctamente.</p>
+        <div id="already-done" class="hidden" style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 3rem;">✅</div>
+            <h3>Test Completed</h3>
+            <p>You cannot repeat the test without Coach permission.</p>
+            <button onclick="requestReset()" id="btn-request-ui" style="background: var(--accent); width: auto;">Request Reset Access</button>
         </div>
     </div>
 
     <div id="admin-section" class="hidden">
         <div class="card">
-            <h2>Panel de Administrador</h2>
-            <div id="attendance-list"></div>
-            <button onclick="resetAllTests()" style="background: var(--danger)">BORRAR DATOS (RESET TOTAL)</button>
+            <button class="btn-logout" onclick="logout()">Logout Admin</button>
+            <h2>Coach Dashboard</h2>
+            <button onclick="sendWhatsAppReminder()" class="btn-whatsapp">💬 Send WhatsApp Reminder</button>
+            <div id="attendance-list" style="margin-top: 20px;"></div>
+            <div id="team-avg-display" style="font-size: 2.5rem; font-weight: bold; color: var(--secondary); margin: 15px 0;">0%</div>
+            <canvas id="teamChart" height="120"></canvas>
+            <button onclick="resetAllTests()" class="btn-reset-all">🔄 Reset All Tests (For Tomorrow)</button>
+        </div>
+        <div class="card" style="border-top-color: var(--accent);">
+            <h3>Player Management</h3>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="new-player-name" placeholder="Type name..." style="margin: 0;">
+                <button onclick="addPlayer()" class="btn-add">Add (+)</button>
+            </div>
+            <div id="player-manage-list"></div>
+        </div>
+        <div class="card">
+            <h3>Export Today's Data</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead><tr><th>Player</th><th>Sleep</th><th>Stress</th><th>Fatigue</th><th>DOMS</th><th>Action</th></tr></thead>
+                    <tbody id="summary-body"></tbody>
+                </table>
+            </div>
+            <button onclick="exportToExcel()" style="background: var(--success); margin-top: 15px;">📥 Download Excel</button>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, onValue, remove, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDLO8H1CuefWUd1r9k4LcaYYLJ30z6RcAQ",
         authDomain: "wellness-daily-fb493.firebaseapp.com",
         databaseURL: "https://wellness-daily-fb493-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "wellness-daily-fb493"
+        projectId: "wellness-daily-fb493",
+        storageBucket: "wellness-daily-fb493.firebasestorage.app",
+        messagingSenderId: "611088492127",
+        appId: "1:611088492127:web:d35de482d1d159314c1dea"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Lógica de login con contraseña "quemada" pero protegida por las reglas de Firebase
-    window.loginAdmin = () => {
-        const pass = document.getElementById('admin-pass').value;
-        if (pass === "1234") { // Cambia esto
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('admin-section').classList.remove('hidden');
-        } else {
-            alert("Acceso denegado.");
+    window.updateVal = (id, val) => document.getElementById(id).innerText = val;
+
+    onValue(ref(db, 'players'), (snap) => {
+        window.players = snap.val() ? Object.values(snap.val()) : [];
+        const select = document.getElementById('player-select');
+        const manageList = document.getElementById('player-manage-list');
+        select.innerHTML = '<option value="">-- Choose Your Name --</option>' + 
+            window.players.map(p => `<option value="${p}">${p}</option>`).join('');
+        if (manageList) {
+            manageList.innerHTML = window.players.map(p => `
+                <div class="manage-item">
+                    <span>${p}</span>
+                    <button class="btn-remove" onclick="removePlayer('${p}')">Remove (X)</button>
+                </div>
+            `).join('');
+        }
+    });
+
+    window.addPlayer = () => {
+        const input = document.getElementById('new-player-name');
+        const name = input.value.trim();
+        if (!name) return alert("Please enter a name");
+        if (window.players.includes(name)) return alert("This player already exists");
+        set(ref(db, 'players/' + name), name);
+        input.value = "";
+    };
+
+    window.removePlayer = (name) => {
+        if (confirm(`Remove ${name} from the list?`)) {
+            remove(ref(db, 'players/' + name));
         }
     };
 
-    // ... Resto de tu lógica de Firebase (onValue, set, etc) se mantiene igual ...
+    onValue(ref(db, 'records'), (snap) => {
+        window.records = snap.val() ? Object.values(snap.val()) : [];
+        if (window.currentPlayer) checkIfDone();
+        renderAdminData();
+    });
+
+    onValue(ref(db, 'resets'), (snap) => {
+        window.resetRequests = snap.val() ? Object.keys(snap.val()) : [];
+        renderAdminData();
+    });
+
+    window.loginPlayer = async () => {
+        const name = document.getElementById('player-select').value;
+        if (!name) return;
+        const sessionRef = ref(db, 'active_sessions/' + name);
+        await set(sessionRef, { active: true });
+        onDisconnect(sessionRef).set({ active: false });
+        window.currentPlayer = name;
+        localStorage.setItem('hb_current_session', name);
+        showPlayerSection();
+    };
+
+    function showPlayerSection() {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('player-section').classList.remove('hidden');
+        document.getElementById('welcome-msg').innerText = "Player: " + window.currentPlayer;
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString();
+        checkIfDone();
+    }
+
+    function checkIfDone() {
+        const today = new Date().toISOString().split('T')[0];
+        const done = window.records.find(r => r.name === window.currentPlayer && r.date === today);
+        document.getElementById('test-form').style.display = done ? 'none' : 'block';
+        document.getElementById('already-done').style.display = done ? 'block' : 'none';
+        const isPending = window.resetRequests && window.resetRequests.includes(window.currentPlayer);
+        const btn = document.getElementById('btn-request-ui');
+        if (btn) {
+            btn.innerText = isPending ? "Request Sent..." : "Request Reset Access";
+            btn.disabled = isPending;
+        }
+    }
+
+    window.submitTest = () => {
+        const today = new Date().toISOString().split('T')[0];
+        const data = {
+            name: window.currentPlayer,
+            date: today,
+            sleep: parseInt(document.getElementById('q-sleep').value),
+            stress: parseInt(document.getElementById('q-stress').value),
+            soreness: parseInt(document.getElementById('q-soreness').value),
+            fatigue: parseInt(document.getElementById('q-fatigue').value)
+        };
+        data.avg = (data.sleep + data.stress + data.soreness + data.fatigue) / 4;
+        set(ref(db, 'records/' + window.currentPlayer + "_" + today), data);
+    };
+
+    window.requestReset = () => set(ref(db, 'resets/' + window.currentPlayer), true);
+
+    window.loginAdmin = () => {
+        if (document.getElementById('admin-pass').value === "1234") {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('admin-section').classList.remove('hidden');
+        } else {
+            alert("Incorrect password");
+        }
+    };
+
+    window.sendWhatsAppReminder = () => {
+        const msg = encodeURIComponent("Please, remember to finish the wellness test as soon as possible, thank you!");
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    };
+
+    window.resetAllTests = async () => {
+        if(confirm("This will clear ALL current records and reset the team. Continue?")) {
+            await remove(ref(db, 'records'));
+            await remove(ref(db, 'resets'));
+            alert("Team reset complete.");
+        }
+    };
+
+    window.approveReset = (name) => {
+        const today = new Date().toISOString().split('T')[0];
+        remove(ref(db, 'records/' + name + "_" + today));
+        remove(ref(db, 'resets/' + name));
+    };
+
+    window.renderAdminData = () => {
+        const today = new Date().toISOString().split('T')[0];
+        const body = document.getElementById('summary-body');
+        const attendance = document.getElementById('attendance-list');
+        if (!body) return;
+        body.innerHTML = ""; attendance.innerHTML = "";
+        let teamSum = 0, count = 0;
+        window.players.forEach(p => {
+            const r = window.records.find(rec => rec.name === p && rec.date === today);
+            const req = window.resetRequests && window.resetRequests.includes(p);
+            attendance.innerHTML += `<div style="margin:8px 0; display:flex; justify-content:space-between; align-items:center;">
+                <span>${r ? '✅' : '❌'} ${p}</span>
+                ${req ? `<button class="badge-reset" onclick="approveReset('${p}')">Approve Reset</button>` : ''}
+            </div>`;
+            if(r) {
+                teamSum += r.avg; count++;
+                const ck = (v) => v > 6 ? 'class="score-alert"' : '';
+                body.innerHTML += `<tr>
+                    <td>${p}</td><td ${ck(r.sleep)}>${r.sleep}</td><td ${ck(r.stress)}>${r.stress}</td>
+                    <td ${ck(r.fatigue)}>${r.fatigue}</td><td ${ck(r.soreness)}>${r.soreness}</td>
+                    <td>${req ? 'REQ' : 'OK'}</td>
+                </tr>`;
+            }
+        });
+        document.getElementById('team-avg-display').innerText = count ? Math.round((teamSum/count)*10) + "%" : "0%";
+        renderChart(today);
+    };
+
+    window.exportToExcel = () => {
+        const today = new Date().toISOString().split('T')[0];
+        const testsToday = window.records.filter(r => r.date === today);
+        if (!testsToday.length) return alert("No data.");
+        const teamAvg = (testsToday.reduce((a, b) => a + b.avg, 0) / testsToday.length).toFixed(2);
+        const data = testsToday.map(r => ({
+            "Name": r.name, "Date": r.date, "Sleep": r.sleep, "Stress": r.stress,
+            "Fatigue": r.fatigue, "Soreness": r.soreness, "Player Average": r.avg.toFixed(2),
+            "Team Average": teamAvg
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Wellness");
+        XLSX.writeFile(wb, `Wellness_${today}.xlsx`);
+    };
+
+    function renderChart(today) {
+        const d = window.records.filter(r => r.date === today);
+        const ctx = document.getElementById('teamChart').getContext('2d');
+        if(window.myChart) window.myChart.destroy();
+        window.myChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: d.map(r => r.name), datasets: [{ label: 'Score', data: d.map(r => r.avg), backgroundColor: '#3b82f6' }] },
+            options: { scales: { y: { beginAtZero: true, max: 10 } }, responsive: true }
+        });
+    }
+
+    window.logout = async () => {
+        if (window.currentPlayer) {
+            await set(ref(db, 'active_sessions/' + window.currentPlayer), { active: false });
+            localStorage.removeItem('hb_current_session');
+        }
+        location.reload();
+    };
+
+    const savedSession = localStorage.getItem('hb_current_session');
+    if (savedSession) {
+        window.currentPlayer = savedSession;
+        showPlayerSection();
+    }
 </script>
 </body>
 </html>
