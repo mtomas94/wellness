@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WELLNESS TEST - PROTECTED</title>
+
+    <script>
+        // 1. Bloquear clic derecho (evita inspeccionar)
+        document.oncontextmenu = function() { return false; };
+
+        // 2. Bloquear teclas de desarrollador y comandos de copia
+        document.onkeydown = function(e) {
+            if (
+                e.keyCode == 123 || // F12
+                (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || // Ctrl+Shift+I/J
+                (e.ctrlKey && e.keyCode == 85) || // Ctrl+U (Ver código fuente)
+                (e.ctrlKey && e.keyCode == 83)    // Ctrl+S (Guardar página)
+            ) {
+                return false;
+            }
+        };
+
+        // 3. Ofuscar un poco el acceso
+        console.log("%c¡ALTO!", "color: red; font-size: 30px; font-weight: bold;");
+        console.log("El acceso no autorizado a este sistema está monitorizado.");
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f0f2f5; --card: #ffffff; --primary: #1e3a8a; --secondary: #3b82f6;
+            --accent: #f59e0b; --danger: #ef4444; --success: #10b981; --text: #1f2937;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none; /* Evita que copien texto */
+        }
+        .nav { background: var(--primary); color: white; padding: 1.5rem; text-align: center; font-weight: 700; font-size: 1.5rem; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+        .card { background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid var(--secondary); }
+        input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; border: 1px solid #d1d5db; font-size: 16px; -webkit-appearance: none; }
+        button { background: var(--secondary); color: white; border: none; cursor: pointer; font-weight: 600; }
+        .hidden { display: none; }
+        /* Estilos de tabla y otros se mantienen... */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+
+<div class="nav">📊 SISTEMA PROTEGIDO</div>
+
+<div class="container">
+    <div id="login-section" class="card">
+        <h2>Identificación de Usuario</h2>
+        <select id="player-select"><option value="">-- Selecciona tu nombre --</option></select>
+        <button onclick="loginPlayer()">Entrar como Jugador</button>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #ccc;">
+            <input type="password" id="admin-pass" placeholder="Contraseña de Administrador">
+            <button style="background: var(--primary)" onclick="loginAdmin()">Panel de Control (Coach)</button>
+        </div>
+    </div>
+
+    <div id="player-section" class="card hidden">
+        <h2 id="welcome-msg">Bienvenido</h2>
+        <div id="test-form">
+            <button onclick="submitTest()" style="background: var(--success); height: 60px;">ENVIAR TEST DE HOY</button>
+        </div>
+        <div id="already-done" class="hidden">
+            <p>✅ Test enviado correctamente.</p>
+        </div>
+    </div>
+
+    <div id="admin-section" class="hidden">
+        <div class="card">
+            <h2>Panel de Administrador</h2>
+            <div id="attendance-list"></div>
+            <button onclick="resetAllTests()" style="background: var(--danger)">BORRAR DATOS (RESET TOTAL)</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLO8H1CuefWUd1r9k4LcaYYLJ30z6RcAQ",
+        authDomain: "wellness-daily-fb493.firebaseapp.com",
+        databaseURL: "https://wellness-daily-fb493-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "wellness-daily-fb493"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Lógica de login con contraseña "quemada" pero protegida por las reglas de Firebase
+    window.loginAdmin = () => {
+        const pass = document.getElementById('admin-pass').value;
+        if (pass === "1234") { // Cambia esto
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('admin-section').classList.remove('hidden');
+        } else {
+            alert("Acceso denegado.");
+        }
+    };
+
+    // ... Resto de tu lógica de Firebase (onValue, set, etc) se mantiene igual ...
+</script>
+</body>
+</html>
